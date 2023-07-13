@@ -1,8 +1,9 @@
 const express = require('express');
 const multer = require('multer');
-const app = express();
 const fs = require('fs');
 const path = require('path');
+
+const app = express();
 
 app.use(express.static('public'));
 
@@ -11,9 +12,12 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/')
   },
   filename: function(req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname )
+    // Use the current date and time as the filename
+    const date = new Date();
+    const filename = `${date.getMinutes()}_${date.getHours()}_${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}.ogg`;
+    cb(null, filename);
   }
-})
+});
 
 const upload = multer({ storage: storage });
 
@@ -23,17 +27,14 @@ app.post('/upload', upload.single('audio'), (req, res) => {
 
 app.get('/audios', (req, res) => {
   fs.readdir('uploads', (err, files) => {
-    if (err) {
-      res.sendStatus(500);
-    } else {
-      res.json(files);
-    }
+    res.send(files);
   });
 });
 
-app.get('/audio/:name', (req, res) => {
-  const filePath = path.join('uploads', req.params.name);
-  res.sendFile(path.resolve(filePath));
+app.get('/audio/:filename', (req, res) => {
+  res.sendFile(path.join(__dirname, 'uploads', req.params.filename));
 });
 
-app.listen(3000, () => console.log('Server started on port 3000'));
+app.listen(3000, () => {
+  console.log('Server started on http://localhost:3000');
+});
