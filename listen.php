@@ -2,8 +2,9 @@
 // Path to the directory containing audio files.
 $audioDirectory = '/DreamOf/Audios';
 
-// Get a list of all audio files in the directory.
+// Get a list of all audio files (mp3 and wav) in the directory.
 $audioFiles = glob($_SERVER['DOCUMENT_ROOT'] . $audioDirectory . '/*.mp3');
+$audioFiles = array_merge($audioFiles, glob($_SERVER['DOCUMENT_ROOT'] . $audioDirectory . '/*.wav'));
 
 if (empty($audioFiles)) {
     // No audio files found.
