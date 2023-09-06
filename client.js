@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     const listenButton = document.getElementById("listenButton");
-    const recordButton = document.getElementById("recordButton");
+    const recordStartButton = document.getElementById("recordStartButton");
+    const recordStopButton = document.getElementById("recordStopButton");
     const audioPlayer = document.getElementById("audioPlayer");
 
     let mediaRecorder;
     let audioChunks = [];
+    let isRecording = false;
 
     listenButton.addEventListener("click", function () {
         // Make an AJAX request to listen.php to fetch a random audio file.
@@ -24,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    recordButton.addEventListener("click", async function () {
+    recordStartButton.addEventListener("click", async function () {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
@@ -35,7 +37,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             };
 
+            mediaRecorder.onstart = () => {
+                isRecording = true;
+                recordStartButton.style.display = "none";
+                recordStopButton.style.display = "inline-block";
+                audioChunks = [];
+            };
+
             mediaRecorder.onstop = async () => {
+                isRecording = false;
+                recordStartButton.style.display = "inline-block";
+                recordStopButton.style.display = "none";
+
                 const blob = new Blob(audioChunks, { type: "audio/wav" });
                 const formData = new FormData();
                 formData.append("audio_data", blob);
@@ -50,19 +63,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     alert("Failed to upload audio.");
                 }
-                
+
                 audioChunks = [];
             };
 
             mediaRecorder.start();
-            recordButton.disabled = true;
-            setTimeout(() => {
-                mediaRecorder.stop();
-                recordButton.disabled = false;
-            }, 5000); // Record for 5 seconds
         } catch (error) {
             console.error("Error:", error);
             alert("Failed to access the microphone.");
+        }
+    });
+
+    recordStopButton.addEventListener("click", function () {
+        if (isRecording) {
+            mediaRecorder.stop();
         }
     });
 });
