@@ -13,7 +13,7 @@ if (empty($audioFiles)) {
     $randomAudioFile = $audioFiles[array_rand($audioFiles)];
 
     // Construct the URL to the selected audio file.
-    $audioUrl = 'http://mac-mini-de-hugo.local' . $audioDirectory . '/' . basename($randomAudioFile);
+    $audioUrl = 'http://' . $_SERVER['HTTP_HOST'] . $audioDirectory . '/' . basename($randomAudioFile);
 
     $response = ['audioUrl' => $audioUrl];
 }
